@@ -1,6 +1,6 @@
 # Merge
 -flattenpackagehierarchy com.github.catvod.spider.merge
--repackageclasses com.github.catvod.spider.merge
+-dontwarn org.slf4j.impl.StaticLoggerBinder
 
 # Spider
 -keep class com.github.catvod.crawler.* { *; }
@@ -29,3 +29,7 @@
 # OkHttp
 -keep class okio.**{*;}
 -keep class okhttp3.**{*;}
+
+# Cronet
+-keep class org.chromium.net.**{*;}
+-keep class com.google.net.cronet.**{*;}

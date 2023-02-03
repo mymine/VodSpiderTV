@@ -6,12 +6,13 @@ import android.text.TextUtils;
 import com.github.catvod.bean.Class;
 import com.github.catvod.bean.Filter;
 import com.github.catvod.bean.Result;
+import com.github.catvod.bean.Sub;
 import com.github.catvod.bean.Vod;
 import com.github.catvod.bean.alist.Drive;
 import com.github.catvod.bean.alist.Item;
 import com.github.catvod.bean.alist.Sorter;
 import com.github.catvod.crawler.Spider;
-import com.github.catvod.net.OkHttpUtil;
+import com.github.catvod.net.OkHttp;
 import com.github.catvod.utils.Misc;
 import com.github.catvod.utils.Trans;
 
@@ -33,14 +34,14 @@ public class AList extends Spider {
 
     private List<Filter> getFilter() {
         List<Filter> items = new ArrayList<>();
-        items.add(new Filter("type", "排序類型", Arrays.asList(new Filter.Value("名稱", "name"), new Filter.Value("大小", "size"), new Filter.Value("修改時間", "date"))));
-        items.add(new Filter("order", "排序方式", Arrays.asList(new Filter.Value("⬆", "asc"), new Filter.Value("⬇", "desc"))));
+        items.add(new Filter("type", "排序類型", Arrays.asList(new Filter.Value("預設", ""), new Filter.Value("名稱", "name"), new Filter.Value("大小", "size"), new Filter.Value("修改時間", "date"))));
+        items.add(new Filter("order", "排序方式", Arrays.asList(new Filter.Value("預設", ""), new Filter.Value("⬆", "asc"), new Filter.Value("⬇", "desc"))));
         return items;
     }
 
     private void fetchRule() {
         if (drives != null && !drives.isEmpty()) return;
-        if (ext.startsWith("http")) ext = OkHttpUtil.string(ext);
+        if (ext.startsWith("http")) ext = OkHttp.string(ext);
         drives = Drive.objectFrom(ext).getDrives();
     }
 
@@ -70,8 +71,8 @@ public class AList extends Spider {
     @Override
     public String categoryContent(String tid, String pg, boolean filter, HashMap<String, String> extend) throws Exception {
         fetchRule();
-        String type = extend.containsKey("type") ? extend.get("type") : "name";
-        String order = extend.containsKey("order") ? extend.get("order") : "asc";
+        String type = extend.containsKey("type") ? extend.get("type") : "";
+        String order = extend.containsKey("order") ? extend.get("order") : "";
         List<Item> folders = new ArrayList<>();
         List<Item> files = new ArrayList<>();
         List<Vod> list = new ArrayList<>();
@@ -79,8 +80,10 @@ public class AList extends Spider {
             if (item.isFolder()) folders.add(item);
             else files.add(item);
         }
-        Sorter.sort(type, order, folders);
-        Sorter.sort(type, order, files);
+        if (!TextUtils.isEmpty(type) && !TextUtils.isEmpty(order)) {
+            Sorter.sort(type, order, folders);
+            Sorter.sort(type, order, files);
+        }
         for (Item item : folders) list.add(item.getVod(tid));
         for (Item item : files) list.add(item.getVod(tid));
         return Result.get().vod(list).page().string();
@@ -124,18 +127,18 @@ public class AList extends Spider {
     @Override
     public String playerContent(String flag, String id, List<String> vipFlags) {
         String[] ids = id.split("~~~");
-        return Result.get().url(getDetail(ids[0]).getUrl()).sub(getSub(ids)).string();
+        return Result.get().url(getDetail(ids[0]).getUrl()).subs(getSub(ids)).string();
     }
 
     private Item getDetail(String id) {
         try {
             String key = id.contains("/") ? id.substring(0, id.indexOf("/")) : id;
-            String path = id.contains("/") ? id.substring(id.indexOf("/") + 1) : "";
+            String path = id.contains("/") ? id.substring(id.indexOf("/")) : "";
             Drive drive = getDrive(key);
             JSONObject params = new JSONObject();
             params.put("path", path);
             params.put("password", drive.getPassword());
-            String response = OkHttpUtil.postJson(drive.getApi(), params.toString());
+            String response = OkHttp.postJson(drive.getApi(), params.toString());
             return Item.objectFrom(getDetailJson(drive.isNew(), response));
         } catch (Exception e) {
             return new Item();
@@ -145,12 +148,12 @@ public class AList extends Spider {
     private List<Item> getList(String id, boolean filter) {
         try {
             String key = id.contains("/") ? id.substring(0, id.indexOf("/")) : id;
-            String path = id.contains("/") ? id.substring(id.indexOf("/") + 1) : "";
+            String path = id.contains("/") ? id.substring(id.indexOf("/")) : "";
             Drive drive = getDrive(key);
             JSONObject params = new JSONObject();
             params.put("path", path);
             params.put("password", drive.getPassword());
-            String response = OkHttpUtil.postJson(drive.listApi(), params.toString());
+            String response = OkHttp.postJson(drive.listApi(), params.toString());
             List<Item> items = Item.arrayFrom(getListJson(drive.isNew(), response));
             Iterator<Item> iterator = items.iterator();
             if (filter) while (iterator.hasNext()) if (iterator.next().ignore(drive.isNew())) iterator.remove();
@@ -162,11 +165,10 @@ public class AList extends Spider {
 
     private void search(CountDownLatch cd, List<Vod> list, Drive drive, String keyword) {
         try {
-            String response = OkHttpUtil.postJson(drive.searchApi(), drive.params(keyword));
+            String response = OkHttp.postJson(drive.searchApi(), drive.params(keyword));
             List<Item> items = Item.arrayFrom(getSearchJson(drive.isNew(), response));
-            for (Item item : items) if (!item.ignore(drive.isNew())) list.add(item.getVod(drive.getName()));
-        } catch (Exception e) {
-            e.printStackTrace();
+            for (Item item : items) if (!item.ignore(drive.isNew())) list.add(item.getVod(drive));
+        } catch (Exception ignored) {
         } finally {
             cd.countDown();
         }
@@ -198,17 +200,20 @@ public class AList extends Spider {
 
     private String findSubs(String path, List<Item> items) {
         StringBuilder sb = new StringBuilder();
-        for (Item item : items) if (Misc.isSub(item.getExt())) sb.append("~~~").append(Trans.get(item.getName())).append("@").append(Misc.getSubMimeType(item.getExt())).append("@").append(item.getVodId(path));
+        for (Item item : items) if (Misc.isSub(item.getExt())) sb.append("~~~").append(item.getName()).append("@@@").append(item.getExt()).append("@@@").append(item.getVodId(path));
         return sb.toString();
     }
 
-    private String getSub(String[] ids) {
-        StringBuilder sb = new StringBuilder();
+    private List<Sub> getSub(String[] ids) {
+        List<Sub> sub = new ArrayList<>();
         for (String text : ids) {
-            if (!text.contains("@")) continue;
-            String[] arr = text.split("@");
-            sb.append(arr[0]).append("#").append(arr[1]).append("#").append(getDetail(arr[2]).getUrl()).append("$$$");
+            if (!text.contains("@@@")) continue;
+            String[] split = text.split("@@@");
+            String name = split[0];
+            String ext = split[1];
+            String url = getDetail(split[2]).getUrl();
+            sub.add(Sub.create().name(name).ext(ext).url(url));
         }
-        return Misc.substring(sb.toString(), 3);
+        return sub;
     }
 }
