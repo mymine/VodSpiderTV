@@ -281,9 +281,9 @@ public class AliYun {
         if (marker.length() > 0) param.addProperty("marker", marker);
         Item item = Item.objectFrom(auth("adrive/v3/file/list", param.toString(), true));
         for (Item file : item.getItems()) {
-            if (file.getType().equals("folder")) {
+            if ("folder".equals(file.getType())) {
                 folders.add(file);
-            } else if (file.getCategory().equals("video") || file.getCategory().equals("audio")) {
+            } else if ("video".equals(file.getCategory()) || "audio".equals(file.getCategory())) {
                 files.add(file.parent(parent.getName()));
             } else if (Util.isSub(file.getExt())) {
                 subs.add(file);
@@ -301,7 +301,7 @@ public class AliYun {
         if (!TextUtils.isEmpty(fileId)) return fileId;
         if (share.getFileInfos().isEmpty()) return "";
         Item item = share.getFileInfos().get(0);
-        return item.getType().equals("folder") ? item.getFileId() : "root";
+        return "folder".equals(item.getType()) ? item.getFileId() : "root";
     }
 
     private void pair(String name1, List<Item> items, List<Item> subs) {
@@ -395,11 +395,11 @@ public class AliYun {
     }
 
     public String playerContent(String[] ids, String flag) {
-        if (flag.split("#")[0].equals("代理普畫")) {
+        if ("代理普畫".equals(flag.split("#")[0])) {
             return getPreviewContent(ids);
-        } else if (flag.split("#")[0].equals("轉存原畫")) {
+        } else if ("轉存原畫".equals(flag.split("#")[0])) {
             return Result.get().url(proxyVideoUrl("open", ids[0], ids[1])).octet().subs(getSubs(ids)).header(getHeader()).string();
-        } else if (flag.split("#")[0].equals("分享原畫")) {
+        } else if ("分享原畫".equals(flag.split("#")[0])) {
             return Result.get().url(proxyVideoUrl("share", ids[0], ids[1])).octet().subs(getSubs(ids)).header(getHeader()).string();
         } else {
             return "";

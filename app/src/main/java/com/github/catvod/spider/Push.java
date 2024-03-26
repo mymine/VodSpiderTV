@@ -38,10 +38,10 @@ public class Push extends Spider {
     @Override
     public String playerContent(String flag, String id, List<String> vipFlags) {
         if (id.startsWith("http") && id.contains("***")) id = id.replace("***", "#");
-        if (flag.equals("直連")) return Result.get().url(id).subs(getSubs(id)).string();
-        if (flag.equals("解析")) return Result.get().parse().jx().url(id).string();
-        if (flag.equals("嗅探")) return Result.get().parse().url(id).string();
-        if (flag.equals("迅雷")) return Result.get().url(id).string();
+        if ("直連".equals(flag)) return Result.get().url(id).subs(getSubs(id)).string();
+        if ("解析".equals(flag)) return Result.get().parse().jx().url(id).string();
+        if ("嗅探".equals(flag)) return Result.get().parse().url(id).string();
+        if ("迅雷".equals(flag)) return Result.get().url(id).string();
         return ali.playerContent(flag, id, vipFlags);
     }
 

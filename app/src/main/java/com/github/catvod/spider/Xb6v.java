@@ -63,7 +63,7 @@ public class Xb6v extends Spider {
             Element e = elements.get(i);
             String typeId = e.attr("href");
             String typeName = e.text();
-            if (typeName.equals("电视剧")) {
+            if ("电视剧".equals(typeName)) {
                 List<Filter.Value> values = new ArrayList<>();
                 values.add(new Filter.Value("不限", ""));
                 for (Element a : e.nextElementSibling().select("a")) {
@@ -100,7 +100,7 @@ public class Xb6v extends Spider {
     public String categoryContent(String tid, String pg, boolean filter, HashMap<String, String> extend) throws Exception {
         String cateId = extend.get("cateId") == null ? "" : extend.get("cateId");
         String cateUrl = siteUrl + tid + cateId;
-        if (!pg.equals("1")) cateUrl += "index_" + pg + ".html";
+        if (!"1".equals(pg)) cateUrl += "index_" + pg + ".html";
         String html = OkHttp.string(cateUrl, getHeader());
         Document doc = Jsoup.parse(html);
         String href = doc.select(".pagination > a").last().attr("href");
@@ -142,19 +142,19 @@ public class Xb6v extends Spider {
         String name = doc.select(".article_container > h1").text();
         String pic = doc.select("#post_content img").attr("src");
         String typeName = getStrByRegex(Pattern.compile("◎类　　别　(.*?)<br>"), partHTML);
-        if (typeName.equals("")) typeName = doc.select("[rel=category tag]").text();
+        if ("".equals(typeName)) typeName = doc.select("[rel=category tag]").text();
         String year = getStrByRegex(Pattern.compile("◎年　　代　(.*?)<br>"), partHTML);
-        if (year.equals("")) year = getStrByRegex(Pattern.compile("首播:(.*?)<br>"), partHTML);
+        if ("".equals(year)) year = getStrByRegex(Pattern.compile("首播:(.*?)<br>"), partHTML);
         String area = getStrByRegex(Pattern.compile("◎产　　地　(.*?)<br>"), partHTML);
-        if (area.equals("")) area = getStrByRegex(Pattern.compile("地区:(.*?)<br>"), partHTML);
+        if ("".equals(area)) area = getStrByRegex(Pattern.compile("地区:(.*?)<br>"), partHTML);
         String remark = getStrByRegex(Pattern.compile("◎上映日期　(.*?)<br>"), partHTML);
         String actor = getActorOrDirector(Pattern.compile("◎演　　员　(.*?)</p>"), partHTML);
-        if (actor.equals("")) actor = getActorOrDirector(Pattern.compile("◎主　　演　(.*?)</p>"), partHTML);
-        if (actor.equals("")) actor = getActorOrDirector(Pattern.compile("主演:(.*?)<br>"), partHTML);
+        if ("".equals(actor)) actor = getActorOrDirector(Pattern.compile("◎主　　演　(.*?)</p>"), partHTML);
+        if ("".equals(actor)) actor = getActorOrDirector(Pattern.compile("主演:(.*?)<br>"), partHTML);
         String director = getActorOrDirector(Pattern.compile("◎导　　演　(.*?)<br>"), partHTML);
-        if (director.equals("")) director = getActorOrDirector(Pattern.compile("导演:(.*?)<br>"), partHTML);
+        if ("".equals(director)) director = getActorOrDirector(Pattern.compile("导演:(.*?)<br>"), partHTML);
         String description = getDescription(Pattern.compile("◎简　　介(.*?)<hr>", Pattern.CASE_INSENSITIVE | Pattern.DOTALL), partHTML);
-        if (description.equals("")) description = getDescription(Pattern.compile("简介(.*?)</p>", Pattern.CASE_INSENSITIVE | Pattern.DOTALL), partHTML);
+        if ("".equals(description)) description = getDescription(Pattern.compile("简介(.*?)</p>", Pattern.CASE_INSENSITIVE | Pattern.DOTALL), partHTML);
 
         Vod vod = new Vod();
         vod.setVodId(ids.get(0));
@@ -209,7 +209,7 @@ public class Xb6v extends Spider {
     @Override
     public String searchContent(String key, boolean quick, String pg) throws Exception {
         String searchUrl = siteUrl + "/e/search/index.php";
-        if (pg.equals("1")) {
+        if ("1".equals(pg)) {
             RequestBody formBody = new FormBody.Builder()
                     .add("show", "title")
                     .add("tempid", "1")

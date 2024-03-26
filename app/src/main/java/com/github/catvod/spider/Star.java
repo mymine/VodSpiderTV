@@ -79,7 +79,7 @@ public class Star extends Spider {
         List<Vod> list = new ArrayList<>();
         Element script = Jsoup.parse(OkHttp.string(siteUrl, getHeader())).select("#__NEXT_DATA__").get(0);
         List<Card> cards = Card.arrayFrom(new JSONObject(script.data()).getJSONObject("props").getJSONObject("pageProps").getJSONArray("cards").toString());
-        for (Card card : cards) if (!card.getName().equals("电视直播")) for (Card item : card.getCards()) list.add(item.vod());
+        for (Card card : cards) if (!"电视直播".equals(card.getName())) for (Card item : card.getCards()) list.add(item.vod());
         return Result.string(list);
     }
 

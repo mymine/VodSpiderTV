@@ -132,7 +132,7 @@ public class Douban extends Spider {
     private String getTags(HashMap<String, String> extend) {
         try {
             StringBuilder tags = new StringBuilder();
-            for (String key : extend.keySet()) if (!key.equals("sort")) tags.append(extend.get(key)).append(",");
+            for (String key : extend.keySet()) if (!"sort".equals(key)) tags.append(extend.get(key)).append(",");
             return Util.substring(tags.toString());
         } catch (Exception e) {
             return "";

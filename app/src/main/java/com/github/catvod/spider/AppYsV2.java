@@ -477,7 +477,7 @@ public class AppYsV2 extends Spider {
             Iterator<String> typeExtendKeys = typeExtend.keys();
             while (typeExtendKeys.hasNext()) {
                 String key = typeExtendKeys.next();
-                if (key.equals("class") || key.equals("area") || key.equals("lang") || key.equals("year")) {
+                if ("class".equals(key) || "area".equals(key) || "lang".equals(key) || "year".equals(key)) {
                     try {
                         str = str + "筛选" + key + "+全部=+" + typeExtend.getString(key).replace(",", "+") + "\n";
                     } catch (JSONException e) {
@@ -692,7 +692,7 @@ public class AppYsV2 extends Spider {
     protected JSONObject getFinalVideo(String flag, ArrayList<String> parseUrls, String url) throws JSONException {
         String htmlPlayUrl = "";
         for (String parseUrl : parseUrls) {
-            if (parseUrl.isEmpty() || parseUrl.equals("null")) continue;
+            if (parseUrl.isEmpty() || "null".equals(parseUrl)) continue;
             String playUrl = parseUrl + url;
             String content = OkHttp.string(playUrl);
             JSONObject tryJson = null;

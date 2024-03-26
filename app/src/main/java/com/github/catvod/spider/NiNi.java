@@ -51,13 +51,13 @@ public class NiNi extends Spider {
 
     private Filter getFilter(String name, String key, JSONArray target, String n, String v) throws JSONException {
         List<Filter.Value> values = new ArrayList<>();
-        if (!key.equals("by")) values.add(new Filter.Value("全部", ""));
+        if (!"by".equals(key)) values.add(new Filter.Value("全部", ""));
         for (int j = 0; j < target.length(); j++) values.add(new Filter.Value(target.getJSONObject(j).get(n).toString(), target.getJSONObject(j).get(v).toString()));
         return new Filter(key, name, values);
     }
 
     private void checkExtend(HashMap<String, String> extend, String key, String value) {
-        if (extend.get(key) == null || extend.get(key).equals("")) extend.put(key, value);
+        if (extend.get(key) == null || "".equals(extend.get(key))) extend.put(key, value);
     }
 
     @Override
@@ -149,7 +149,7 @@ public class NiNi extends Spider {
         JSONObject object = new JSONObject(post(categoryUrl, params));
         JSONArray array = object.getJSONArray("list");
         List<Vod> list = new ArrayList<>();
-        boolean land = tid.equals("7") || tid.equals("16");
+        boolean land = "7".equals(tid) || "16".equals(tid);
         for (int i = 0; i < array.length(); i++) {
             JSONObject item = array.getJSONObject(i);
             String id = item.getString("showIdCode");
@@ -247,12 +247,12 @@ public class NiNi extends Spider {
         params.put("oid", oid);
         StringBuilder sign_query = new StringBuilder("__QUERY::");
         for (Map.Entry<String, String> entry : params.entrySet()) {
-            if (entry.getValue().equals("")) continue;
+            if ("".equals(entry.getValue())) continue;
             sign_query.append(entry.getKey()).append("=").append(entry.getValue()).append("&");
         }
         StringBuilder sign_body = new StringBuilder("__BODY::");
         for (Map.Entry<String, String> entry : bodys.entrySet()) {
-            if (entry.getValue().equals("")) continue;
+            if ("".equals(entry.getValue())) continue;
             sign_body.append(entry.getKey()).append("=").append(entry.getValue()).append("&");
         }
         String _SECRET_PREFIX = "__KEY::";
@@ -268,7 +268,7 @@ public class NiNi extends Spider {
 
     private String getRemarks(JSONObject item) {
         String remark = item.optString("episodesTxt");
-        remark = TextUtils.isEmpty(remark) || remark.equals("null") ? "" : remark;
+        remark = TextUtils.isEmpty(remark) || "null".equals(remark) ? "" : remark;
         return remark;
     }
 

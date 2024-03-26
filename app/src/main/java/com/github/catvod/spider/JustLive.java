@@ -156,7 +156,7 @@ public class JustLive extends Spider {
             String name = jsonObject.optString("nickName");
             String pic = jsonObject.optString("headPic");
             String remark = jsonObject.optString("isLive");
-            remark = remark.equals("1") ? "直播中" : "未开播";
+            remark = "1".equals(remark) ? "直播中" : "未开播";
             String vid = "platform=" + platform + "&roomId=" + roomId;
             list.add(new Vod(vid, name, pic, remark));
         }

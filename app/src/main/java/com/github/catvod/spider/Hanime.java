@@ -30,7 +30,7 @@ public class Hanime extends Spider {
 
     private Filter getFilter(String name, String key, List<String> texts) {
         List<Filter.Value> values = new ArrayList<>();
-        if (!key.equals("by")) values.add(new Filter.Value("全部", ""));
+        if (!"by".equals(key)) values.add(new Filter.Value("全部", ""));
         for (String text : texts) {
             if (text.isEmpty()) continue;
             values.add(new Filter.Value(text));
@@ -49,7 +49,7 @@ public class Hanime extends Spider {
         Document doc2 = Jsoup.parse(OkHttp.string(siteUrl, getHeaders()));
         for (Element element : doc2.select("a.nav-item")) {
             String text = element.text();
-            if (text.equals("新番預告") || text.equals("H漫畫")) continue;
+            if ("新番預告".equals(text) || "H漫畫".equals(text)) continue;
             classes.add(new Class(text));
             List<Filter> array = new ArrayList<>();
             array.add(getFilter("排序", "by", sorts));

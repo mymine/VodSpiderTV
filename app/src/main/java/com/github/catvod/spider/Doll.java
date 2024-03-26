@@ -47,7 +47,7 @@ public class Doll extends Spider {
     @Override
     public String categoryContent(String tid, String pg, boolean filter, HashMap<String, String> extend) throws Exception {
         List<Vod> list = new ArrayList<>();
-        String target = pg.equals("1") ? url + tid : url + tid + "/" + pg + ".html";
+        String target = "1".equals(pg) ? url + tid : url + tid + "/" + pg + ".html";
         Document doc = Jsoup.parse(OkHttp.string(target));
         for (Element div : doc.select("div.video-detail")) {
             String id = div.select("h3.video-title > a").attr("href").replace(url, "");
