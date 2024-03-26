@@ -12,6 +12,7 @@ import com.github.catvod.net.OkHttp;
 import com.github.catvod.ui.ScrollTextView;
 import com.github.catvod.utils.ResUtil;
 import com.github.catvod.utils.Util;
+import java.security.SecureRandom;
 
 import org.json.JSONObject;
 
@@ -92,7 +93,7 @@ public class Notice extends Spider {
     private final Runnable runnable = new Runnable() {
         @Override
         public void run() {
-            Random random = new Random();
+            Random random = new SecureRandom();
             view.setTextColor(Color.argb(255, random.nextInt(128), random.nextInt(128), random.nextInt(128)));
             setColor();
         }
